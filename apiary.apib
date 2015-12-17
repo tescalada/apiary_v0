@@ -1,0 +1,250 @@
+FORMAT: 1A
+HOST: https://cloud.sparkmeter.io/api/v0/
+
+# SparkMeter API V0
+
+Version 0 of the SparkMeter API.
+
+## Authentication
+All API requests are authenticated using the "Authentication-Token" header. In the code samples, replace 'your_auth_token' with the token you obtain from below.
+
+### Obtaining a token:
+In the SparkCentral UI, navigate to your vendors information page. Then click "Generate Token" to be given a token for that user.
+
+# Group System
+System related resources of the **System API**
+
+## Get System Info [GET /system-info]
+
+List information about the system, grouped by the MAS name/id.
+
++ Parameters
+  + None
+  
++ Request
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+
++ Response 200 (application/json)
+
+        {
+            grids: [
+                {
+                    id: "4450e826-03ed-42a3-921c-7e0260fb6305",
+                    name: "groundbolt-example-installation",
+                    serial: "3Llp4sbMGQVGIvhIri_0",
+                    last_sync_date: "Thu Dec 17 2015 14:14:36 GMT-0000 (UTC)"
+                }
+            ]
+        }
+
+# Group Meter
+
+## Change Meter Operating Mode [GET /meter/{meter_serial}/set-operating-mode{?state}]
+
+Change the operating mode of a meter.
+
+If failure, return an error code with what went wrong.
+    
+See the SparkMeter documentation for more information about the values of the state.
+
++ Parameters
+
+    + meter_serial: `SM15R-01-00000123` (required, part of the url)
+        a valid meter serial
+    + state: "on", "off" or "auto"
+
++ Request
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+            
++ Response 200 (application/json)
+
+        {
+            error: null,
+            status: "success"
+        }
+        
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "status": "failure",
+                "error": "no such meter"
+            }        
+
++ Response 406 (application/json)
+
+    + Body
+
+            {
+                "status": "failure",
+                "error": "bad state value"
+            }        
+
+# Group Customer
+Customer related resources of the **Customer API**
+
+## Get Customer Info [GET /customer-info{?customer_code}]
+
+If success, list of objects built from meters which customer code matches the input exactly. 
+List can contain 0 (customer code not found) or several objects (several customers with same code). 
+
+If failure, failure code and/or explanation (timeout?)
+
+
++ Parameters
+    + customer_code: `xyz` (required, string)
+        a valid customer code
+
++ Request
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+
++ Response 200 (application/json)
+
+        { 
+            "customers": [
+                {
+                    "id": "7008fb52-6eef-43d2-ae74-02172cef2173",
+                    "code": "xyz",
+                    "name": "new customer1",
+                    "credit_wallet_balance": 1000.0,
+                    "debt_wallet_balance": 100.0,
+                    "meters": [
+                        {
+                            "serial": 'SM15R-01-00000123',
+                            "plan_wallet_balance": 50.1,
+                            "current_tariff_name": "ET4",
+                            "operating_mode": "On",
+                            "is_running_plan": true,
+                            "last_energy": 676879.2,
+                            "total_cycle_energy": 987.4
+                        }
+                    ]
+                }
+            ],
+            error: null,
+            status: "success"
+        }
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "status": "failure",
+                "error": "no such customer"
+            }
+
+# Group Transaction
+Transaction related resources of the **Transaction API**
+ 
+## Create transaction [POST /transactions{?customer_id,amount,external_id,source}]
+
+Create credit transaction to customer
+
+If external id is given, it will check if a transaction exists with this id and return an error if it exists.
+
+If success, internal id of transaction in system
+
+If failure, failure code and/or explanation (timeout, non-existent ids, not authorized to place a transaction with that vendor, insufficient funds, external id is not unique, other?)
+
++ Parameters
+    + customer_id: `c00000000-0000-0000-0000-00000000001` (required, uuid)
+        internal id of customer to which the transaction is placed
+        
+    + amount: `100.1` (required, number)
+        amount of transaction
+
+    + external_id: `abc123` (optional, string)
+    
+    + source: `cash` (optional, string)
+        either `cash` or `bonus`
+    
+
+
++ Request (application/json)
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /transactions/700000000-0000-0000-0000-00000000001
+
+    + Body
+
+            {
+                "status": "success",
+                "transaction_id": "700000000-0000-0000-0000-00000000001",
+            }
+
+
++ Response 422 (application/json)
+
+    + Body
+
+            {
+                "status": "failed",
+                "error": "insufficient funds"
+            }
+            
++ Response 423 (application/json)
+
+    + Body
+
+            {
+                "status": "failed",
+                "error": "transaction already exists"
+            }            
+            
+## Get Transaction [GET /transactions/{id}]
+
+Status of specific transaction
+
+Failure, if the id of the transaction doesn't exist.
+ 
++ Parameters
+    + id: `d362ed9f-a3e9-49ed-a244-cd9a4776df59` (required, UUID)
+        UUID `id` of the Transaction to perform action with, or if the id does not exist, an external_id.
+
++ Request
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+
++ Response 200 (application/json)
+
+        {
+            "created": "2015-08-11T14:48:34.890886", 
+            "amount": 100.1, 
+            "status": "processed", 
+            "error": null, 
+            "source": "cash",
+            "id": "d362ed9f-a3e9-49ed-a244-cd9a4776df59"
+            "external_id": "abc123",
+            "from": { "type": "vendor", "id": "d19d9de4-5676-4c56-82ca-3c1bafbb1c74" },
+            "to": { "type": "customer", "id": "63fb9295-716f-41d7-8cd3-4d29404cd70d" }
+        }
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "status": "failure",
+                "error": "no such transaction"
+            }            
