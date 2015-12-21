@@ -21,7 +21,7 @@ System related resources of the **System API**
 
 List information about the system, grouped by the MAS name/id.
 
-+ Request
++ Request (application/json)
 
     + Headers
     
@@ -111,7 +111,7 @@ If failure, failure code and/or explanation (timeout?)
     + customer_code: `xyz` (required, string)
         a valid customer code
 
-+ Request
++ Request (application/json)
 
     + Headers
     
@@ -223,7 +223,7 @@ Failure, if the id of the transaction doesn't exist.
     + id: `d362ed9f-a3e9-49ed-a244-cd9a4776df59` (required, UUID)
         UUID `id` of the Transaction to perform action with, or if the id does not exist, an external_id.
 
-+ Request
++ Request (application/json)
 
     + Headers
     
