@@ -99,15 +99,15 @@ See the SparkMeter documentation for more information about the values of the st
 # Group Customer
 Customer related resources of the **Customer API**
 
-## Get Customer Info [GET /customer-info{?customer_code}]
+## Get Customer Info [GET /customer/{?customer_code}/]
 
 If success, list of objects built from meters which customer code matches the input exactly. 
 List can contain 0 (customer code not found) or several objects (several customers with same code). 
 
 If failure, failure code and/or explanation (timeout?)
 
-
 + Parameters
+
     + customer_code: `xyz` (required, string)
         a valid customer code
 
@@ -119,29 +119,27 @@ If failure, failure code and/or explanation (timeout?)
 
 + Response 200 (application/json)
 
-        { 
-            "customers": [
+        {
+          "customers": [
+            {
+              "code": "123", 
+              "credit_balance": 1000.0, 
+              "debt_balance": 0.0, 
+              "id": "b028574c-01af-4f5e-adad-a1e2eb804611", 
+              "meters": [
                 {
-                    "id": "7008fb52-6eef-43d2-ae74-02172cef2173",
-                    "code": "xyz",
-                    "name": "new customer1",
-                    "credit_wallet_balance": 1000.0,
-                    "debt_wallet_balance": 100.0,
-                    "meters": [
-                        {
-                            "serial": 'SM15R-01-00000123',
-                            "plan_wallet_balance": 50.1,
-                            "current_tariff_name": "ET4",
-                            "operating_mode": "On",
-                            "is_running_plan": true,
-                            "last_energy": 676879.2,
-                            "total_cycle_energy": 987.4
-                        }
-                    ]
+                  "current_tariff_name": "ET1", 
+                  "is_running_plan": false, 
+                  "last_energy": 0.0, 
+                  "operating_mode": 1, 
+                  "plan_balance": 0.0, 
+                  "serial": "SM15R-01-00000123", 
+                  "total_cycle_energy": 0.0
                 }
-            ],
-            error: null,
-            status: "success"
+              ], 
+              "name": "John Doe"
+            }
+          ]
         }
 
 + Response 404 (application/json)
@@ -156,7 +154,7 @@ If failure, failure code and/or explanation (timeout?)
 # Group Transaction
 Transaction related resources of the **Transaction API**
  
-## Create transaction [POST /transactions]
+## Create transaction [POST /transaction/]
 
 Create credit transaction to customer
 
@@ -173,18 +171,21 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
     + external_id: `abc123` (optional, string) - external identifier for this transaction
     + source: `cash` (optional, string) - either `cash` or `bonus`
 
-+ Request (application/json)
++ Request (application/x-www-form-urlencoded)
 
     + Headers
     
             Authentication-Token: your_auth_token
 
+    + Body
+    
+            customer_id=c00000000-0000-0000-0000-00000000001&amount=48.5&external_id=abc123&source=cash
 
 + Response 201 (application/json)
 
     + Headers
 
-            Location: /transactions/700000000-0000-0000-0000-00000000001
+            Location: /transaction/700000000-0000-0000-0000-00000000001
 
     + Body
 
@@ -212,7 +213,7 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
                 "error": "transaction already exists"
             }            
             
-## Get Transaction [GET /transactions/{id}]
+## Get Transaction [GET /transaction/{id}]
 
 Status of specific transaction
 
