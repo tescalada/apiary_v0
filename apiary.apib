@@ -11,6 +11,9 @@ All API requests are authenticated using the "Authentication-Token" header. In t
 ### Obtaining a token:
 In the SparkCentral UI, navigate to your vendors information page. Then click "Generate Token" to be given a token for that user.
 
+## Endpoint
+The url used for api access will be the same url you use to access the ThunderCloud system at the uri "/api/v0/"
+
 # Group System
 System related resources of the **System API**
 
@@ -18,9 +21,6 @@ System related resources of the **System API**
 
 List information about the system, grouped by the MAS name/id.
 
-+ Parameters
-  + None
-  
 + Request
 
     + Headers
@@ -42,7 +42,7 @@ List information about the system, grouped by the MAS name/id.
 
 # Group Meter
 
-## Change Meter Operating Mode [GET /meter/{meter_serial}/set-operating-mode{?state}]
+## Change Meter Operating Mode [POST /meter/{meter_serial}/set-operating-mode]
 
 Change the operating mode of a meter.
 
@@ -52,22 +52,31 @@ See the SparkMeter documentation for more information about the values of the st
 
 + Parameters
 
-    + meter_serial: `SM15R-01-00000123` (required, part of the url)
+    + meter_serial: `SM15R-01-00000123` (required, string)
         a valid meter serial
-    + state: "on", "off" or "auto"
 
-+ Request
++ Attributes
+
+    + state: `auto` (required, string) - State to set, either "on", "off" or "auto".
+
++ Request (application/x-www-form-urlencoded)
 
     + Headers
     
             Authentication-Token: your_auth_token
+    
+    + Body
+    
+            state=on
             
 + Response 200 (application/json)
 
-        {
-            error: null,
-            status: "success"
-        }
+    + Body
+
+            {
+                "error": null,
+                "status": "success"
+            }
         
 + Response 404 (application/json)
 
@@ -147,7 +156,7 @@ If failure, failure code and/or explanation (timeout?)
 # Group Transaction
 Transaction related resources of the **Transaction API**
  
-## Create transaction [POST /transactions{?customer_id,amount,external_id,source}]
+## Create transaction [POST /transactions]
 
 Create credit transaction to customer
 
@@ -157,19 +166,12 @@ If success, internal id of transaction in system
 
 If failure, failure code and/or explanation (timeout, non-existent ids, not authorized to place a transaction with that vendor, insufficient funds, external id is not unique, other?)
 
-+ Parameters
-    + customer_id: `c00000000-0000-0000-0000-00000000001` (required, uuid)
-        internal id of customer to which the transaction is placed
-        
-    + amount: `100.1` (required, number)
-        amount of transaction
++ Attributes
 
-    + external_id: `abc123` (optional, string)
-    
-    + source: `cash` (optional, string)
-        either `cash` or `bonus`
-    
-
+    + customer_id: `c00000000-0000-0000-0000-00000000001` (required, string) - internal id of customer to which the transaction is placed
+    + amount: `100.1` (required, number) - amount of transaction
+    + external_id: `abc123` (optional, string) - external identifier for this transaction
+    + source: `cash` (optional, string) - either `cash` or `bonus`
 
 + Request (application/json)
 
