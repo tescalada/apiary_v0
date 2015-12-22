@@ -166,7 +166,7 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
 
 + Attributes
 
-    + customer_id: `c00000000-0000-0000-0000-00000000001` (required, string) - internal id of customer to which the transaction is placed
+    + customer_id: `b028574c-01af-4f5e-adad-a1e2eb804611` (required, string) - internal id of customer to which the transaction is placed
     + amount: `100.1` (required, number) - amount of transaction
     + external_id: `abc123` (optional, string) - external identifier for this transaction
     + source: `cash` (optional, string) - either `cash` or `bonus`
@@ -185,13 +185,13 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
 
     + Headers
 
-            Location: /transaction/700000000-0000-0000-0000-00000000001
+            Location: https://cloud.sparkmeter.io/api/v0/transaction/6180a397-3791-44da-a44f-7a3d868c5022
 
     + Body
 
             {
                 "status": "success",
-                "transaction_id": "700000000-0000-0000-0000-00000000001",
+                "transaction_id": "6180a397-3791-44da-a44f-7a3d868c5022",
             }
 
 
