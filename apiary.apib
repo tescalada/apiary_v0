@@ -13,9 +13,9 @@ In the SparkCentral UI, navigate to your vendors information page. The token wil
 
 ### Missing or invalid token
 
-In case the token is missing or invalid, the following response will be provided:
-
 + Response 401 (application/json)
+
+    Returned if the authentication token is missing or invalid, the following response will be provided:
 
     + Body
 
@@ -30,9 +30,9 @@ The url used for api access will be the same url you use to access the ThunderCl
 
 ### Invalid endpoint
 
-If you pass in an invalid endpoint, application will respond with:
-
 + Response 404 (application/json)
+
+    Returned if an invalid enpoint was provided.
 
     + Body
 
@@ -62,9 +62,9 @@ If unusure how to pass parameters, just use application/x-www-form-urlencoded.
 
 ### Unsupported mimetype
 
-If you pass in data using an unsupported mime-type, application will respond with:
-
 + Response 415 (application/json)
+
+    Returned if the request uses an unsupported mime type.
 
     + Body
 
@@ -88,18 +88,22 @@ List information about the system, grouped by the MAS name/id.
 
 + Response 200 (application/json)
 
-        {
-            "error": null,
-            "grids": [
-                {
-                    "id": "4450e826-03ed-42a3-921c-7e0260fb6305",
-                    "name": "groundbolt-example-installation",
-                    "serial": "3Llp4sbMGQVGIvhIri_0",
-                    "last_sync_date": "Thu Dec 17 2015 14:14:36 GMT-0000 (UTC)"
-                }
-            ],
-            "status": "success"
-        }
+    Returned the request was processed properly.
+    
+    + Body
+        
+            {
+                "error": null,
+                "grids": [
+                    {
+                        "id": "4450e826-03ed-42a3-921c-7e0260fb6305",
+                        "name": "groundbolt-example-installation",
+                        "serial": "3Llp4sbMGQVGIvhIri_0",
+                        "last_sync_date": "Thu Dec 17 2015 14:14:36 GMT-0000 (UTC)"
+                    }
+                ],
+                "status": "success"
+            }
 
 # Group Meter
 
@@ -186,30 +190,34 @@ If failure, failure code and/or explanation (timeout?)
 
 + Response 200 (application/json)
 
-        {
-          "customers": [
+    Returned the request was processed properly.
+
+    + Body
+    
             {
-              "code": "123", 
-              "credit_balance": 1000.0, 
-              "debt_balance": 0.0, 
-              "id": "b028574c-01af-4f5e-adad-a1e2eb804611", 
-              "meters": [
+              "customers": [
                 {
-                  "current_tariff_name": "ET1", 
-                  "is_running_plan": false, 
-                  "last_energy": 0.0, 
-                  "operating_mode": 1, 
-                  "plan_balance": 0.0, 
-                  "serial": "SM15R-01-00000123", 
-                  "total_cycle_energy": 0.0
+                  "code": "123", 
+                  "credit_balance": 1000.0, 
+                  "debt_balance": 0.0, 
+                  "id": "b028574c-01af-4f5e-adad-a1e2eb804611", 
+                  "meters": [
+                    {
+                      "current_tariff_name": "ET1", 
+                      "is_running_plan": false, 
+                      "last_energy": 0.0, 
+                      "operating_mode": 1, 
+                      "plan_balance": 0.0, 
+                      "serial": "SM15R-01-00000123", 
+                      "total_cycle_energy": 0.0
+                    }
+                  ], 
+                  "name": "John Doe"
                 }
-              ], 
-              "name": "John Doe"
+              ],
+              "error": null,
+              "status": "success"
             }
-          ],
-          "error": null,
-          "status": "success"
-        }
 
 + Response 404 (application/json)
 
@@ -253,6 +261,8 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
             customer_id=60c8aa08-71a3-4d33-934c-66b32f5224bb&amount=48.5&external_id=abc123&source=cash
 
 + Response 201 (application/json)
+
+    Returned the request was processed properly and the transaction has been created.
 
     + Headers
 
@@ -330,17 +340,21 @@ Failure, if the id of the transaction doesn't exist.
 
 + Response 200 (application/json)
 
-        {
-            "created": "2015-08-11T14:48:34.890886", 
-            "amount": 100.1, 
-            "status": "processed", 
-            "error": null, 
-            "source": "cash",
-            "id": "d362ed9f-a3e9-49ed-a244-cd9a4776df59"
-            "external_id": "abc123",
-            "from": { "type": "vendor", "id": "d19d9de4-5676-4c56-82ca-3c1bafbb1c74" },
-            "to": { "type": "customer", "id": "63fb9295-716f-41d7-8cd3-4d29404cd70d" }
-        }
+    Returned the request was processed properly.
+
+    + Body
+    
+            {
+                "created": "2015-08-11T14:48:34.890886", 
+                "amount": 100.1, 
+                "status": "processed", 
+                "error": null, 
+                "source": "cash",
+                "id": "d362ed9f-a3e9-49ed-a244-cd9a4776df59"
+                "external_id": "abc123",
+                "from": { "type": "vendor", "id": "d19d9de4-5676-4c56-82ca-3c1bafbb1c74" },
+                "to": { "type": "customer", "id": "63fb9295-716f-41d7-8cd3-4d29404cd70d" }
+            }
 
 + Response 404 (application/json)
 
