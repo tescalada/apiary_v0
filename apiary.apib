@@ -9,10 +9,69 @@ Version 0 of the SparkMeter API.
 All API requests are authenticated using the "Authentication-Token" header. In the code samples, replace 'your_auth_token' with the token you obtain from below.
 
 ### Obtaining a token:
-In the SparkCentral UI, navigate to your vendors information page. Then click "Generate Token" to be given a token for that user.
+In the SparkCentral UI, navigate to your vendors information page. The token will be visible there under the "Auth Token" label.
+
+### Missing or invalid token
+
+In case the token is missing or invalid, the following response will be provided:
+
++ Response 401 (application/json)
+
+    + Body
+
+            {
+                "error": "unauthorized",
+                "status": "failure"
+            }        
+
 
 ## Endpoint
 The url used for api access will be the same url you use to access the ThunderCloud system at the uri "/api/v0/"
+
+### Invalid endpoint
+
+If you pass in an invalid endpoint, application will respond with:
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "error": "no such api",
+                "status": "failure"
+            }
+
+## POST parameters
+
+SparkMeter uses POST method for requests that need to either submit new data or modify existing data.
+There are two different ways of providing the POST APIS with data.
+
+You can pass in parameters either by using application/x-www-form-urlencoded or application/json.
+
+### Form
+application/x-www-form-urlencoded is the standard way a web browser uses to submit forms, most http libraries will default to this, parameters are passed in like this:
+
+    param1=value1&param2=value2
+
+### JSON
+application/json is similar, but uses JSON encoding instead, same example as above:
+
+   {"param1":"value1","param2":"value2"}
+
+If unusure how to pass parameters, just use application/x-www-form-urlencoded.
+
+### Unsupported mimetype
+
+If you pass in data using an unsupported mime-type, application will respond with:
+
++ Response 415 (application/json)
+
+    + Body
+
+            {
+                "error": "bad mimetype, must be application/x-www-form-urlencoded or application/json",
+                "status": "failure"
+            }
 
 # Group System
 System related resources of the **System API**
@@ -30,14 +89,16 @@ List information about the system, grouped by the MAS name/id.
 + Response 200 (application/json)
 
         {
-            grids: [
+            "error": null,
+            "grids": [
                 {
-                    id: "4450e826-03ed-42a3-921c-7e0260fb6305",
-                    name: "groundbolt-example-installation",
-                    serial: "3Llp4sbMGQVGIvhIri_0",
-                    last_sync_date: "Thu Dec 17 2015 14:14:36 GMT-0000 (UTC)"
+                    "id": "4450e826-03ed-42a3-921c-7e0260fb6305",
+                    "name": "groundbolt-example-installation",
+                    "serial": "3Llp4sbMGQVGIvhIri_0",
+                    "last_sync_date": "Thu Dec 17 2015 14:14:36 GMT-0000 (UTC)"
                 }
-            ]
+            ],
+            "status": "success"
         }
 
 # Group Meter
@@ -68,8 +129,10 @@ See the SparkMeter documentation for more information about the values of the st
     + Body
     
             state=on
-            
+
 + Response 200 (application/json)
+
+    Returned the request was processed properly.
 
     + Body
 
@@ -77,23 +140,27 @@ See the SparkMeter documentation for more information about the values of the st
                 "error": null,
                 "status": "success"
             }
-        
-+ Response 404 (application/json)
+
++ Response 400 (application/json)
+
+    Returned if the request was not properly formatted, either if a parameter was missing, empty or with an incorrect value.
 
     + Body
 
             {
-                "status": "failure",
-                "error": "no such meter"
+                "error": "missing parameter: state",
+                "status": "failure"
             }        
 
-+ Response 406 (application/json)
++ Response 404 (application/json)
+
+    Returned if the meter serial does not exist.
 
     + Body
 
             {
-                "status": "failure",
-                "error": "bad state value"
+                "error": "no such meter",
+                "status": "failure"
             }        
 
 # Group Customer
@@ -139,16 +206,20 @@ If failure, failure code and/or explanation (timeout?)
               ], 
               "name": "John Doe"
             }
-          ]
+          ],
+          "error": null,
+          "status": "success"
         }
 
 + Response 404 (application/json)
 
+    Returned if the customer does not exist.
+    
     + Body
 
             {
-                "status": "failure",
-                "error": "no such customer"
+                "error": "no such customer",
+                "status": "failure"
             }
 
 # Group Transaction
@@ -190,27 +261,55 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
     + Body
 
             {
+                "error": null,
                 "status": "success",
-                "transaction_id": "6180a397-3791-44da-a44f-7a3d868c5022",
+                "transaction_id": "6180a397-3791-44da-a44f-7a3d868c5022"
             }
 
 
-+ Response 422 (application/json)
++ Response 400 (application/json)
+
+    Returned if the request was not properly formatted, either if a parameter was missing, empty or with an incorrect value.
 
     + Body
 
             {
-                "status": "failed",
-                "error": "insufficient funds"
+                "error": "missing parameter: amount",
+                "status": "failed"
+            }
+            
++ Response 404 (application/json)
+
+    Returned if the customer or transaction source does not exist.
+
+    + Body
+
+            {
+                "error": "no such customer",
+                "status": "failed"
+            }
+            
+
++ Response 422 (application/json)
+
+    Returned if the vendor placing the transaction lacks sufficient funds.
+    
+    + Body
+
+            {
+                "error": "insufficient funds",
+                "status": "failed"
             }
             
 + Response 423 (application/json)
 
+    Returned if there is another transaction with the same external id.
+    
     + Body
 
             {
-                "status": "failed",
-                "error": "transaction already exists"
+                "error": "transaction already exists",
+                "status": "failed"
             }            
             
 ## Get Transaction [GET /transaction/{id}]
@@ -245,9 +344,11 @@ Failure, if the id of the transaction doesn't exist.
 
 + Response 404 (application/json)
 
+    Returned if the  transaction does not exist.
+
     + Body
 
             {
-                "status": "failure",
-                "error": "no such transaction"
-            }            
+                "error": "no such transaction",
+                "status": "failure"
+            }
