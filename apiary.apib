@@ -4,12 +4,14 @@ HOST: https://cloud.sparkmeter.io/api/v0/
 # SparkMeter API V0
 
 Version 0 of the SparkMeter API.
+This version of the API focuses on remote payments. 
 
 ## Authentication
 All API requests are authenticated using the "Authentication-Token" header. In the code samples, replace 'your_auth_token' with the token you obtain from below.
 
 ### Obtaining a token:
-In the SparkCentral UI, navigate to your vendors information page. The token will be visible there under the "Auth Token" label.
+In the SparkCentral UI, navigate to your vendors information page. The token will be visible there under the "Auth Token" label. 
+You need to be signed in with Operator privileges to obtain a token on vendor accounts. 
 
 ### Missing or invalid token
 
@@ -44,7 +46,7 @@ The url used for api access will be the same url you use to access the ThunderCl
 ## POST parameters
 
 SparkMeter uses POST method for requests that need to either submit new data or modify existing data.
-There are two different ways of providing the POST APIS with data.
+There are two different ways of providing the POST APIs with data.
 
 You can pass in parameters either by using application/x-www-form-urlencoded or application/json.
 
@@ -78,7 +80,11 @@ System related resources of the **System API**
 
 ## Get System Info [GET /system-info]
 
-List information about the system, grouped by the MAS name/id.
+This call returns information on the connection between the ThunderCloud server and Meter Application Servers (MAS) connected to it.
+
+The information is formatted in a list. Since each ThunderCloud instance is currently only connected to one MAS, the list contains only one element.
+
+*Typical use case*: Check that the MAS is online by retrieving the last date of sync between the servers. `last_sync_date` should never be more than a few minutes old.
 
 + Request (application/json)
 
@@ -109,16 +115,16 @@ List information about the system, grouped by the MAS name/id.
 
 ## Change Meter Operating Mode [POST /meter/{meter_serial}/set-operating-mode]
 
-Change the operating mode of a meter.
+Change the operating mode of a meter (on, off, auto). This call requires a valid meter serial number.
 
-If failure, return an error code with what went wrong.
-    
+*Typical use case*: Turn a meter Off based on information external to SparkMeter system.
+
 See the SparkMeter documentation for more information about the values of the state.
 
 + Parameters
 
     + meter_serial: `SM15R-01-00000123` (required, string)
-        a valid meter serial
+        a valid meter serial number
 
 + Attributes
 
@@ -172,10 +178,14 @@ Customer related resources of the **Customer API**
 
 ## Get Customer Info [GET /customer/{?customer_code}]
 
-If success, list of objects built from meters which customer code matches the input exactly. 
-List can contain 0 (customer code not found) or several objects (several customers with same code). 
+This call provides information on the customer referred to in the query.
 
-If failure, failure code and/or explanation (timeout?)
+The `customer_code` input must match exactly a "Customer code" field of an existing meter.
+
+*Typical use cases*: 
+- Retrieve last account balance - `credit_balance` - for a given customer. 
+- Get the internal id - `id` - of a customer, to be used in a subsequent **Create Transaction** call
+
 
 + Parameters
 
@@ -235,13 +245,13 @@ Transaction related resources of the **Transaction API**
  
 ## Create transaction [POST /transaction/]
 
-Create credit transaction to customer
+This call creates a transaction in the SparkMeter system, from the vendor matching the token used to a customer.
 
-If external id is given, it will check if a transaction exists with this id and return an error if it exists.
+The customer must be referenced by its internal id, which can be obtained from a **Customer Info** call.
 
-If success, internal id of transaction in system
+Optionally, an external identifier can be given as an argument. This id needs to be unique - a transaction with an external id that has already be used in th past will be refused. It can be used later to gather the status of the transaction once it has been plac
 
-If failure, failure code and/or explanation (timeout, non-existent ids, not authorized to place a transaction with that vendor, insufficient funds, external id is not unique, other?)
+*Typical use case*: Automatically insert mobile money transactions in the SparkMeter system. 
 
 + Attributes
 
@@ -324,13 +334,16 @@ If failure, failure code and/or explanation (timeout, non-existent ids, not auth
             
 ## Get Transaction [GET /transaction/{id}]
 
-Status of specific transaction
+Get the status of a given transaction. 
 
-Failure, if the id of the transaction doesn't exist.
- 
+The id given in argument can be either an internal id (returned as a response to a **Create transaction** call) or an external id (provided as an argument to a valid **Create transaction** call).
+
+*Typical use case*: A few minutes after a **Create transaction** call, check that the transaction has been processed.   
+
+
 + Parameters
-    + id: `d362ed9f-a3e9-49ed-a244-cd9a4776df59` (required, UUID)
-        UUID `id` of the Transaction to perform action with, or if the id does not exist, an external_id.
+    + id: `d362ed9f-a3e9-49ed-a244-cd9a4776df59` (required, string)
+        The system first tries to interpret this string as the UUID `id` of a transaction, then as an `external_id` if this `id` is not found.
 
 + Request (application/json)
 
@@ -340,7 +353,7 @@ Failure, if the id of the transaction doesn't exist.
 
 + Response 200 (application/json)
 
-    Returned the request was processed properly.
+    Returned if the request was processed properly.
 
     + Body
     
@@ -358,7 +371,7 @@ Failure, if the id of the transaction doesn't exist.
 
 + Response 404 (application/json)
 
-    Returned if the  transaction does not exist.
+    Returned if the transaction does not exist.
 
     + Body
 
