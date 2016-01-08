@@ -75,6 +75,36 @@ If unusure how to pass parameters, just use application/x-www-form-urlencoded.
                 "status": "failure"
             }
 
+## Description of a typical use case for mobile money
+
+
+### Requirements
+
+In order to enter a mobile transaction in the SparkMeter system, you need:
++ a valid API token (see above for instructions on how to obtain a token)
++ the code of the customer concerned by the transaction. This code is defined by the system owner and should be unique. It can be found on the customer page
++ optionally, an external id for the transaction to be placed in the system. This id is defined and provided by the API consumer, and has to be unique.
+
+The transaction will be placed from the account of the vendor matching the token used, to the customer matching the code provided.
+
+### Step-by-step
+
+1. **Get customer info** using the customer code.
+
+        Upon success of the call, obtain value of field id to get the customer's internal id.
+2. **Create transaction**, using the customer's internal id just obtained. 
+
+        Optionally, an external_id can be provided for the transaction. 
+        The system will reject the transaction if a transaction already exists with this external_id. 
+        Upon success, the call returns an internal id for the transaction just created. 
+3. Wait for the transaction to be processed. 
+
+        Typically, it takes a few minutes for the transaction to be sent to the Meter Application Server and processed there, then synced back.
+4. **Get Transaction** using the internal id obtained from **Create Transaction** or the external id provided to it.
+
+        Upon success, information is obtained on the status of the transaction.
+
+
 # Group System
 System related resources of the **System API**
 
