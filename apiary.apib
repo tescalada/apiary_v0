@@ -372,6 +372,8 @@ Get the status of a given transaction.
 
 The id given in argument can be either an internal id (returned as a response to a **Create transaction** call) or an external id (provided as an argument to a valid **Create transaction** call).
 
+The `status` field can take the following values: "not-processed", "processed", "error". If connection can be established between the Cloud and the Base Station, it takes a few minutes for a transaction to change from "not-processed" to "processed"
+
 *Typical use case*: A few minutes after a **Create transaction** call, check that the transaction has been processed.   
 
 
