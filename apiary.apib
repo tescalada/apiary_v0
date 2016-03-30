@@ -1,17 +1,21 @@
 FORMAT: 1A
 HOST: https://cloud.sparkmeter.io/api/v0/
 
-# SparkMeter API V0
+# SparkMeter SMS API V0
 
 Version 0 of the SparkMeter API.
-This version of the API focuses on remote payments. 
+This version of the API enables remote payment and some remote connect/disconnect, as well as SMS communication.
 
 ## Authentication
 All API requests are authenticated using the "Authentication-Token" header. In the code samples, replace 'your_auth_token' with the token you obtain from below.
 
 ### Obtaining a token:
-In the SparkCentral UI, navigate to the information page for the vendor to be used for API access (transactions will be placed using this vendor). Under the "Information" block, click on "View credentials". The API endpoint and token can be copied from the popup window. 
-You need to be signed in with Operator privileges to obtain a token on vendor accounts. 
+In your ThunderCloud, navigate to a vendor's information page. In the "Information" box, click "View credentials" under API Credentials.
+In the popup window appearing, you will find an authentication token under "API token". Copy it and give it to the trusted person/service who will be consuming the API
+This token gives access to every API Call, including creating transactions using this vendor's account. 
+Tokens are reset if the User's settings are changed.
+
+You need to be signed in with Operator privileges to obtain a token on a vendor account. 
 
 ### Missing or invalid token
 
@@ -26,13 +30,13 @@ You need to be signed in with Operator privileges to obtain a token on vendor ac
                 "status": "failure"
             }        
 
-
 ## Encoding
-All API requests must be encoded with UTF-8. All responses will be encoded with UTF-8.
-
+All API requests and responses should be encoded are encoded with UTF-8, which is required by the JSON standard.
+Consumers of the API need to convert between UTF-8 and their desired encoding.
 
 ## Endpoint
-The url used for api access will be the same url you use to access the ThunderCloud system at the uri "/api/v0/"
+From the same popup window used to obtain an authentication token, retrieve the "API endpoint"
+This API endpoint will be the same url you use to access the ThunderCloud system at the uri "/api/v0/"
 
 ### Invalid endpoint
 
@@ -86,7 +90,7 @@ If unusure how to pass parameters, just use application/x-www-form-urlencoded.
 
 In order to enter a mobile transaction in the SparkMeter system, you need:
 + a valid API token (see above for instructions on how to obtain a token)
-+ the code of the customer concerned by the transaction. This code is defined by the system owner and should be unique. It can be found on the customer page
++ the code of the customer concerned by the transaction. This code is defined by the system owner and should be unique. It can be found and defined on the customer page
 + optionally, an external id for the transaction to be placed in the system. This id is defined and provided by the API consumer, and has to be unique.
 
 The transaction will be placed from the account of the vendor matching the token used, to the customer matching the code provided.
@@ -96,21 +100,22 @@ The transaction will be placed from the account of the vendor matching the token
 1. **Get customer info** using the customer code.
 
         Upon success of the call, obtain value of field id to get the customer's internal id.
+
 2. **Create transaction**, using the customer's internal id just obtained. 
 
         Optionally, an external_id can be provided for the transaction. 
         The system will reject the transaction if a transaction already exists with this external_id. 
         Upon success, the call returns an internal id for the transaction just created. 
-3. Wait for the transaction to be processed. 
+
+3. **Wait for the transaction to be processed**. 
 
         Typically, it takes a few minutes for the transaction to be sent to the Meter Application Server and processed there, then synced back.
+
 4. **Get Transaction** using the internal id obtained from **Create Transaction** or the external id provided to it.
 
         Upon success, information is obtained on the status of the transaction.
 
-
 # Group System
-System related resources of the **System API**
 
 ## Get System Info [GET /system-info]
 
@@ -208,7 +213,6 @@ See the SparkMeter documentation for more information about the values of the st
             }        
 
 # Group Customer
-Customer related resources of the **Customer API**
 
 ## Get Customer Info [GET /customer/{customer_code}]
 
@@ -275,8 +279,7 @@ The `customer_code` input must match exactly a "Customer code" field of an exist
             }
 
 # Group Transaction
-Transaction related resources of the **Transaction API**
- 
+
 ## Create transaction [POST /transaction/]
 
 This call creates a transaction in the SparkMeter system, from the vendor matching the token used to a customer.
@@ -414,4 +417,195 @@ The `status` field can take the following values: "not-processed", "processed", 
             {
                 "error": "no such transaction",
                 "status": "failure"
+            }
+
+# Group SMS
+
+## Send and Receive a Two-way SMS command [POST /sms/incoming]
+
+This api is used to send an SMS including a command to the SparkMeter system, and receive a formatted message in return.
+The phone number used in the api must belong to a customer in the SparkMeter system 
+
++ Parameters
+    + id: `id` (optional, string)
+        The external ID from the SMS Gateway. This is optional, but must be unique if provided.
+    + phone_number: `+11231231234` (required, string)
+        The phone number that sent the message, in must be in E164 format. It must be listed under a customer in the SparkMeter system.
+    + message: `BAL` (required, string)
+        The incoming message.
+    + timestamp: `2016-02-23T22:49:05+00:00` (optional, string)
+        If provided, this timestamp will be used by SparkMeter as the date the message was received and should respect ISO 8601 date/time format. If not, SparkMeter will use its own timestamp
+
++ Request (application/json)
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+
+    + Body
+    
+            {
+                "id": "smsgatewayid",
+                "phone_number": "+11231231234",
+                "text": "BAL",
+                "timestamp": "2016-02-23T22:49:05+00:00"
+            }
+    
++ Response 201 (application/json)
+
+    The incoming request was properly handled, the message text was parsed and a reply to the command was returned.
+
+    + Body
+
+            {
+                "error": null,
+                "message": {
+                    "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
+                    "to": "+11231231234",
+                    "message": "The balance for Mr. Julio is $500."
+                },
+                "status": "success"
+            }    
+
++ Response 202 (application/json)
+
+    The incoming request was properly handled and an error reply to the command was returned.
+    
+    This happens under the following circumstances:
+    
+    + The message "text" could not be parsed.
+    
+    + A customer could not be found with the specified "phone_number".
+
+    + Body
+
+            {
+                "error": null,
+                "message": {
+                    "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
+                    "to": "+11231231234",
+                    "message": "This phone number is not recognized by SparkMeter."
+                },
+                "status": "error"
+            }    
+
++ Response 400 (application/json)
+
+    The incoming request could not be properly understood.
+    
+    This happens under the following circumstances:
+    
+    + Missing "phone_number" parameter.
+    + Missing "text" parameter.
+    + The provided "phone_number" could not be understood.
+    + The provided "timestamp" could not be understood.
+    
+    + Body
+
+            {
+                "error": "missing parameter: phone_number",
+                "status": "error"
+            }    
+  
++ Response 423 (application/json)
+
+    The incoming request could be properly understood, but there is a resource conflict.
+    
+    This happens under the following circumstances:
+    
+    + The provided "id" parameter is already used by another message.
+    
+    + Body
+
+            {
+                "error": "message already exists",
+                "status": "error"
+            }    
+
+## Outgoing SMS Messages [GET /sms/outgoing]
+
+This API call returns the SMS Messages that are waiting to be delivered. By default it marks them as delivered and remove them from the queue.
+
++ Parameters
+    + mark_delivered: `true` (optional, string)
+        By default, messages are marked as delivered. Specify `false` to keep the messages as pending and keep them in the queue. If this is passed in, the PUT verb has to be used instead of the GET verb.
+
++ Request (application/json)
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+    
++ Response 200 (application/json)
+
+    Returned the request was processed properly.
+    
+    By default, the "status" return string will be "removed". If "mark_delivered" was specified and set to `false`, status will be "pending".
+
+    + Body
+
+            {
+                "messages": [
+                    {
+                        "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
+                        "phone_number": "+11231231234",
+                        "text": "The balance for Mr. Julio is $500.",
+                        "status": "removed"
+                    }
+                ]
+            }         
+
++ Response 404 (application/json)
+
+    Returned no messages exist in the queue.
+
+    + Body
+
+            {
+                "error": "No outgoing messages in the queue",
+                "status": "failed"
+            }             
+
+## Mark outgoing messages as delivered [PUT /sms/mark-delivered]
+
+This API call marks specific messages as delivered and removes them from the queue if they were pending.
+
++ Parameters
+    + messages: ['id1', 'id2'] (required, array)
+        The message ids to be marked as delivered.
+
++ Request (application/json)
+
+    + Headers
+    
+            Authentication-Token: your_auth_token
+    
++ Response 200 (application/json)
+
+    Returned the request was processed properly.
+    
+    + Body
+
+            {
+                "messages": [
+                    {
+                        "id": "x028574c-01af-4f5e-adad-a1e2eb804612",
+                        "status": "not-found"
+                    },
+                    {
+                        "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
+                        "status": "removed"
+                    }
+                ]
+            }         
+
++ Response 404 (application/json)
+
+    Returned if no messages were specified in the parameters.
+
+    + Body
+
+            {
+                "error": "No outgoing messages specified",
+                "status": "failed"
             }
