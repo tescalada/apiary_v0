@@ -11,11 +11,11 @@ All API requests are authenticated using the "Authentication-Token" header. In t
 
 ### Obtaining a token:
 In your ThunderCloud, navigate to a vendor's information page. In the "Information" box, click "View credentials" under API Credentials.
-In the popup window appearing, you will find an authentication token under "API token". Copy it and give it to the trusted person/service who will be consuming the API
+In the popup window appearing, you will find an authentication token under "API token". Copy it and give it to the trusted person/service who will be consuming the API.
 This token gives access to every API Call, including creating transactions using this vendor's account. 
 Tokens are reset if the User's settings are changed.
 
-You need to be signed in with Operator privileges to obtain a token on a vendor account. 
+You need to be signed in with Operator privileges to obtain a token on a vendor account.
 
 ### Missing or invalid token
 
@@ -36,13 +36,13 @@ Consumers of the API need to convert between UTF-8 and their desired encoding.
 
 ## Endpoint
 From the same popup window used to obtain an authentication token, retrieve the "API endpoint"
-This API endpoint will be the same url you use to access the ThunderCloud system at the uri "/api/v0/"
+This API endpoint will be the same URL you use to access the ThunderCloud system at the URI "/api/v0/"
 
 ### Invalid endpoint
 
 + Response 404 (application/json)
 
-    Returned if an invalid enpoint was provided.
+    Returned if an invalid endpoint was provided.
 
     + Body
 
@@ -90,7 +90,7 @@ If unusure how to pass parameters, just use application/x-www-form-urlencoded.
 
 In order to enter a mobile transaction in the SparkMeter system, you need:
 + a valid API token (see above for instructions on how to obtain a token)
-+ the code of the customer concerned by the transaction. This code is defined by the system owner and should be unique. It can be found and defined on the customer page
++ the code of the customer concerned by the transaction. This code is defined by the system owner and should be unique. It can be found and defined on the customer page.
 + optionally, an external id for the transaction to be placed in the system. This id is defined and provided by the API consumer, and has to be unique.
 
 The transaction will be placed from the account of the vendor matching the token used, to the customer matching the code provided.
@@ -222,7 +222,7 @@ The `customer_code` input must match exactly a "Customer code" field of an exist
 
 *Typical use cases*: 
 - Retrieve last account balance - `credit_balance` - for a given customer. 
-- Get the internal id - `id` - of a customer, to be used in a subsequent **Create Transaction** call
+- Get the internal id - `id` - of a customer, to be used in a subsequent **Create Transaction** call.
 
 
 + Parameters
@@ -287,7 +287,7 @@ This call creates a transaction in the SparkMeter system, from the vendor matchi
 
 The customer must be referenced by its internal id, which can be obtained from a **Customer Info** call.
 
-Optionally, an external identifier can be given as an argument. This id needs to be unique - a transaction with an external id that has already be used in th past will be refused. It can be used later to gather the status of the transaction once it has been plac
+Optionally, an external identifier can be given as an argument. This id needs to be unique - a transaction with an external id that has already be used in th past will be refused. It can be used later to gather the status of the transaction once it has been placed.
 
 *Typical use case*: Automatically insert mobile money transactions in the SparkMeter system. 
 
@@ -424,8 +424,8 @@ The `status` field can take the following values: "not-processed", "processed", 
 
 ## Send and Receive a Two-way SMS command [POST /sms/incoming]
 
-This api is used to send an SMS including a command to the SparkMeter system, and receive a formatted message in return.
-The phone number used in the api must belong to a customer in the SparkMeter system 
+This API is used to send an SMS including a command to the SparkMeter system, and receive a formatted message in return.
+The phone number used in the API must belong to a customer in the SparkMeter system. 
 
 + Parameters
     + id: `id` (optional, string)
@@ -435,7 +435,7 @@ The phone number used in the api must belong to a customer in the SparkMeter sys
     + message: `BAL` (required, string)
         The incoming message.
     + timestamp: `2016-02-23T22:49:05+00:00` (optional, string)
-        If provided, this timestamp will be used by SparkMeter as the date the message was received and should respect ISO 8601 date/time format. If not, SparkMeter will use its own timestamp
+        If provided, this timestamp will be used by SparkMeter as the date the message was received and should respect ISO 8601 date/time format. If not, SparkMeter will use its own timestamp.
 
 + Request (application/json)
 
