@@ -454,7 +454,7 @@ The phone number used in the API must belong to a customer in the SparkMeter sys
     
 + Response 201 (application/json)
 
-    The incoming request was properly handled, the message text was parsed and a reply to the command was returned.
+    The incoming request was properly handled, `text` was parsed successfully and a reply to the command was returned.
 
     + Body
 
@@ -498,10 +498,10 @@ The phone number used in the API must belong to a customer in the SparkMeter sys
     
     This happens under the following circumstances:
     
-    + Missing "phone_number" parameter.
-    + Missing "text" parameter.
-    + The provided "phone_number" could not be understood.
-    + The provided "timestamp" could not be understood.
+    + Missing `phone_number` parameter.
+    + Missing `text` parameter.
+    + The provided `phone_number` could not be understood.
+    + The provided `timestamp` could not be understood.
     
     + Body
 
