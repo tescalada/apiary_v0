@@ -432,7 +432,7 @@ The phone number used in the API must belong to a customer in the SparkMeter sys
         The external ID from the SMS Gateway. This is optional, but must be unique if provided.
     + phone_number: `+11231231234` (required, string)
         The phone number that sent the message, in must be in E164 format. It must be listed under a customer in the SparkMeter system.
-    + message: `BAL` (required, string)
+    + text: `BAL` (required, string)
         The incoming message.
     + timestamp: `2016-02-23T22:49:05+00:00` (optional, string)
         If provided, this timestamp will be used by SparkMeter as the date the message was received and should respect ISO 8601 date/time format. If not, SparkMeter will use its own timestamp.
@@ -463,7 +463,7 @@ The phone number used in the API must belong to a customer in the SparkMeter sys
                 "message": {
                     "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
                     "to": "+11231231234",
-                    "message": "The balance for Mr. Julio is $500.",
+                    "text": "The balance for Mr. Julio is $500.",
                     "timestamp": "2016-02-23T22:49:05+00:00"
                 },
                 "status": "success"
@@ -475,9 +475,9 @@ The phone number used in the API must belong to a customer in the SparkMeter sys
     
     This happens under the following circumstances:
     
-    + The message "text" could not be parsed.
+    + `text` could not be parsed.
     
-    + A customer could not be found with the specified "phone_number".
+    + A customer could not be found with the specified `phone_number`.
 
     + Body
 
@@ -486,7 +486,7 @@ The phone number used in the API must belong to a customer in the SparkMeter sys
                 "message": {
                     "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
                     "to": "+11231231234",
-                    "message": "This phone number is not recognized by SparkMeter."
+                    "text": "This phone number is not recognized by SparkMeter."
                     "timestamp": "2016-02-23T22:49:05+00:00"
                 },
                 "status": "error"
