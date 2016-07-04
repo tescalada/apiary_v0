@@ -549,6 +549,7 @@ This API call returns the SMS Messages that are waiting to be delivered. By defa
     + Body
 
             {
+                "error": "null",
                 "messages": [
                     {
                         "id": "x028574c-01af-4f5e-adad-a1e2eb804611",
@@ -556,7 +557,8 @@ This API call returns the SMS Messages that are waiting to be delivered. By defa
                         "text": "The balance for Mr. Julio is $500.",
                         "timestamp": "2016-02-23T22:49:05+00:00"
                     }
-                ]
+                ],
+                "status": "success"
             }         
 
 + Response 404 (application/json)
